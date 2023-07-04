@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import dayjs from "dayjs"
 import Collector from './components/Collector'
+import { useAtom } from 'jotai'
+import { ExpendRecord } from '@/lib/source'
+
+const isBrowser = typeof window !== 'undefined'
 
 export default function Home() {
   const [displayCollector, setDisplaycollector] = useState(false)
@@ -48,8 +52,9 @@ export default function Home() {
   )
 }
 
-const exampleData = [
+const exampleData: ExpendRecord[] = [
   {
+    rid: '123124',
     kind: '餐饮',
     remark: '早餐',
     amount: -12.4,
@@ -57,6 +62,7 @@ const exampleData = [
     createAt: '2023-6-20 6:50',
   },
   {
+    rid: '123124',
     kind: '餐饮',
     remark: '晚饭',
     amount: -22.7,
@@ -64,6 +70,7 @@ const exampleData = [
     createAt: '2023-6-22 11:59',
   },
   {
+    rid: '123124',
     kind: '餐饮',
     remark: '午餐',
     amount: -22.7,
@@ -71,6 +78,7 @@ const exampleData = [
     createAt: '2023-6-22 12:00',
   },
   {
+    rid: '123124',
     kind: '餐饮',
     remark: '宵夜',
     amount: -32.4,
@@ -78,6 +86,7 @@ const exampleData = [
     createAt: '2023-6-21 1:30',
   },
   {
+    rid: '123124',
     kind: '日用',
     remark: '纸巾和农夫山泉',
     amount: -18.5,
@@ -85,6 +94,7 @@ const exampleData = [
     createAt: '2023-6-21 12:00',
   },
   {
+    rid: '123124',
     kind: '住房',
     remark: '6月房租水电',
     amount: -2213.89,
@@ -92,14 +102,6 @@ const exampleData = [
     createAt: '2023-6-22 11:58',
   },
 ]
-
-interface ExpendRecord {
-  kind: string
-  remark: string
-  amount: number
-  date: string,
-  createAt: string,
-}
 
 interface DailyRecords {
   date: string

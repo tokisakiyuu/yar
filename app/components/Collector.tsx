@@ -2,12 +2,14 @@ import { Fragment } from 'react'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import cx from 'clsx'
 import dayjs from 'dayjs'
+import { v4 as uuidv4 } from 'uuid'
 import DatePicker from './DatePicker'
+import { ExpendRecord } from '@/lib/source'
 
 interface Props {
   show: boolean
   onClose: () => void
-  onComplete: (data: any) => void
+  onComplete: (data: ExpendRecord) => void
   onDelete: () => void
 }
 
@@ -20,12 +22,14 @@ export default function Collector({ show, onClose, onComplete, onDelete }: Props
   const [date, setDate] = useAtom(dateAtom)
   const [showDatePicker, setShowDatePicker] = useAtom(showDatePickerAtom)
   const handleComplete = () => {
-    const data = {
+    onComplete({
+      rid: uuidv4(),
       amount: Number(amount) * (isExpend ? -1 : 1),
       kind,
+      createAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      date: dayjs(date).format('YYYY-MM'),
       remark
-    }
-    onComplete(data)
+    })
   }
   return (
     <>
