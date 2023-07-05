@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { getDefaultStore } from 'jotai'
 import storage from './storage'
 import { ExpendRecord, ChangeLog } from '../source'
-import { currentMonthRecordsAtom } from '@/app/components/state'
 
 // server_records 存放从服务端获取的当月消费记录
 // change_logs    客户端用户对以上消费记录的操作的记录
@@ -21,7 +20,7 @@ async function sync() {
   // 如果没有changes_logs，那就直接获取当月消费记录，更新到本地数据库
   if (!changeLogs || !changeLogs.length) {
     const records = await fetchTable(currentMonth)
-    jotaiStore.set(currentMonthRecordsAtom, records)
+    // jotaiStore.set(currentMonthRecordsAtom, records)
     await storage.setItem(`records_${currentMonth}`, records)
     return
   }
@@ -31,7 +30,7 @@ async function sync() {
   await storage.removeItem('change_logs')
   // 待服务端计算完毕，向服务端请求获取最新当月消费记录，更新到本地数据库
   const records = await fetchTable(currentMonth)
-  jotaiStore.set(currentMonthRecordsAtom, records)
+  // jotaiStore.set(currentMonthRecordsAtom, records)
   await storage.setItem(`records_${currentMonth}`, records)
 }
 
