@@ -1,13 +1,13 @@
 'use client'
 
-import storage from '@/lib/client/storage'
-
-console.log(storage)
+import { fetchFileContent } from '@/lib/github'
 
 export default async function Test() {
+  const content = await fetchFileContent('myfile.txt')
   return (
     <div>
-      233
+      <h3>file1</h3>
+      <p>{content}</p>
     </div>
   )
 }

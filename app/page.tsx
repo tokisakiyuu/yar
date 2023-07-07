@@ -1,36 +1,68 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useUpdateEffect } from 'react-use'
 import dayjs from "dayjs"
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { MdArrowLeft, MdArrowRight } from 'react-icons/md'
 import Collector from './components/Collector'
-import { useAtom } from 'jotai'
-import { ExpendRecord } from '@/lib/source'
-
-const isBrowser = typeof window !== 'undefined'
+import { monthAtom, recordsAtom } from './components/state'
+import { sortRecordsByDate } from '@/lib/utils'
+import { fetchTable, updateTable } from '@/lib/client/store'
 
 export default function Home() {
   const [displayCollector, setDisplaycollector] = useState(false)
+  const [month, setMonth] = useAtom(monthAtom)
+  const [records, setRecords] = useAtom(recordsAtom)
+  const [loading, setLoading] = useState(false)
+  useUpdateEffect(() => {
+    setLoading(true)
+    fetchTable(month.format('YYYY-MM'))
+      .then(records => {
+        setRecords(records)
+        setLoading(false)
+      })
+  }, [month])
   return (
     <main>
-      {sortRecordsByDate(exampleData).map((group, i) => (
-        <div key={i} className='px-3 mt-2.5'>
-          <div className='flex items-center text-[#9f9f9f] text-sm py-1'>
-            <span>{dayjs(group.date).format('YYYY年MM月DD日')}</span>
-            <span className="ml-2">周{['日', '一', '二', '三', '四', '五', '六'][dayjs(group.date).get('d')]}</span>
-            <span className='ml-auto'>{group.total}</span>
-          </div>
-          {group.records.map((record, ri) => (
-            <div key={`${i}-${ri}`} className='flex items-center border-b border-[#F6F6F6] py-2.5'>
-              <div className='bg-[#F3F3F3] text-sm px-1 py-0.5 text-slate-800'>{record.kind}</div>
-              <div className="ml-2">{record.remark}</div>
-              <div className='ml-auto'>{record.amount}</div>
+      <div className='h-14 bg-[#6C97FC] sticky top-0 flex items-center text-white px-3'>
+        <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
+          <MdArrowLeft />
+        </div>
+        <div className='mx-auto'>
+          {month.format('YYYY年M月')}
+        </div>
+        <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
+          <MdArrowRight />
+        </div>
+      </div>
+      {loading ? (
+        <div className="flex items-center justify-center pt-12 pb-32 text-[#c9c9c9]">
+          <span>加载中...</span>
+        </div>
+      ) : (
+        <>
+          {sortRecordsByDate(records).map((group, i) => (
+            <div key={i} className='px-3 mt-2.5'>
+              <div className='flex items-center text-[#9f9f9f] text-sm py-1'>
+                <span>{dayjs(group.date).format('YYYY年MM月DD日')}</span>
+                <span className="ml-2">周{['日', '一', '二', '三', '四', '五', '六'][dayjs(group.date).get('d')]}</span>
+                <span className='ml-auto'>{group.total}</span>
+              </div>
+              {group.records.map((record, ri) => (
+                <div key={`${i}-${ri}`} className='flex items-center border-b border-[#F6F6F6] py-2.5'>
+                  <div className='bg-[#F3F3F3] text-sm px-1 py-0.5 text-slate-800'>{record.kind || '未分类'}</div>
+                  <div className="ml-2">{record.remark || '无备注'}</div>
+                  <div className='ml-auto'>{record.amount}</div>
+                </div>
+              ))}
             </div>
           ))}
-        </div>
-      ))}
-      <div className="flex items-center justify-center pt-12 pb-32 text-[#c9c9c9]">
-        <span>没有更多了</span>
-      </div>
+          <div className="flex items-center justify-center pt-12 pb-32 text-[#c9c9c9]">
+            <span>{records.length ? '没有更多了' : '无记录'}</span>
+          </div>
+        </>
+      )}
       <div
         className="flex items-center justify-center w-16 h-16 bg-[#6C97FC] rounded-full text-white text-3xl leading-none fixed bottom-7 right-7 cursor-pointer select-none"
         style={{ bottom: 'calc(1.75rem + var(--safe-area-inset-bottom))' }}
@@ -40,8 +72,10 @@ export default function Home() {
         show={displayCollector}
         onClose={() => setDisplaycollector(false)}
         onComplete={data => {
-          console.log(data)
           setDisplaycollector(false)
+          const newRecords = [data, ...records]
+          setRecords(newRecords)
+          updateTable(month.format('YYYY-MM'), newRecords)
         }}
         onDelete={() => {
           console.log('request delete record')
@@ -50,82 +84,4 @@ export default function Home() {
       />
     </main>
   )
-}
-
-const exampleData: ExpendRecord[] = [
-  {
-    rid: '123124',
-    kind: '餐饮',
-    remark: '早餐',
-    amount: -12.4,
-    date: '2023-6-20',
-    createAt: '2023-6-20 6:50',
-  },
-  {
-    rid: '123124',
-    kind: '餐饮',
-    remark: '晚饭',
-    amount: -22.7,
-    date: '2023-6-22',
-    createAt: '2023-6-22 11:59',
-  },
-  {
-    rid: '123124',
-    kind: '餐饮',
-    remark: '午餐',
-    amount: -22.7,
-    date: '2023-6-22',
-    createAt: '2023-6-22 12:00',
-  },
-  {
-    rid: '123124',
-    kind: '餐饮',
-    remark: '宵夜',
-    amount: -32.4,
-    date: '2023-6-21',
-    createAt: '2023-6-21 1:30',
-  },
-  {
-    rid: '123124',
-    kind: '日用',
-    remark: '纸巾和农夫山泉',
-    amount: -18.5,
-    date: '2023-6-21',
-    createAt: '2023-6-21 12:00',
-  },
-  {
-    rid: '123124',
-    kind: '住房',
-    remark: '6月房租水电',
-    amount: -2213.89,
-    date: '2023-6-22',
-    createAt: '2023-6-22 11:58',
-  },
-]
-
-interface DailyRecords {
-  date: string
-  total: number
-  records: ExpendRecord[]
-}
-
-const createAtFormat = 'YYYY-M-D H:mm'
-
-function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
-  const grouped = new Map<string, ExpendRecord[]>()
-  for (const record of data) {
-    grouped.has(record.date)
-      ? grouped.get(record.date)?.push(record)
-      : grouped.set(record.date, [record])
-  }
-  const result: DailyRecords[] = []
-  grouped.forEach((records, date) => {
-    result.push({
-      date,
-      total: records.reduce((total, record) => total + record.amount, 0),
-      records: records.sort((a, b) => dayjs(a.createAt, createAtFormat).isAfter(dayjs(b.createAt, createAtFormat)) ? -1 : 1)
-    })
-  })
-  result.sort((a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? -1 : 1)
-  return result
 }

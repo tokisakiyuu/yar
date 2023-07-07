@@ -41,27 +41,68 @@ export async function pushFileChanges(changes: FileChanges, message?: string): P
 /**
  * get file content from github repository
  */
-export async function fetchFileContent(path: string): Promise<string> {
-  if (fileCache.has(path)) {
-    return fileCache.get(path) as string
+export async function fetchFileContent(path: string): Promise<string>
+export async function fetchFileContent(paths: string[]): Promise<string[]>
+export async function fetchFileContent(input: string | string[]): Promise<string | string[]> {
+  const paths = []
+  if (typeof input === 'string') {
+    if (!input) return ''
+    paths.push(input)
+  } else if (Array.isArray(input)) {
+    if (!input.length) return []
+    paths.push(...input)
   }
-  const res = await gq(`
-    query FileContent($owner: String!, $name: String!, $expression: String!) {
-      repository(owner: $owner, name: $name) {
-        object(expression: $expression) {
-          ... on Blob {
-            text
-          }
+  // 把已经缓存过的文件和没缓存过的分开，待和后面请求结果返回时合并
+  const cachedPaths: { path: string; content: string }[] = []
+  const uncachedPaths: { path: string; content: string }[] = []
+  paths.forEach((path, index) => {
+    if (fileCache.has(path)) {
+      cachedPaths.push({
+        path,
+        content: fileCache.get(path) as string
+      })
+    } else {
+      uncachedPaths.push({
+        path,
+        content: ''
+      })
+    }
+  })
+  if (uncachedPaths.length) {
+    // 发起请求
+    const res = await gq(`
+      query FileContent($owner: String!, $name: String!) {
+        repository(owner: $owner, name: $name) {
+          ${uncachedPaths.map((item, index) => (`
+            file${index}: object(expression: "HEAD:${item.path}") {
+              ... on Blob {
+                text
+              }
+            }
+          `)).join('')}
         }
       }
-    }
-  `, {
-    expression: `HEAD:${path}`
-  })
-  const content =  res.repository?.object?.text || ''
-  // update cache
-  fileCache.set(path, content)
-  return content
+    `)
+    // 请求完成填充返回内容
+    Object.keys(res.repository).forEach(key => {
+      const index = Number(key.substring(4))
+      const content: string = res.repository[key]?.text || ''
+      uncachedPaths[index].content = content
+    })
+    // 更新缓存
+    uncachedPaths.forEach(item => {
+      const { path, content } = item
+      fileCache.set(path, content)
+    })
+  }
+  // 合并结果
+  const resultMap = cachedPaths.concat(uncachedPaths).reduce<{ [path: string]: string }>((map, item) => {
+    map[item.path] = item.content
+    return map
+  }, {})
+  const result = paths.map(path => resultMap[path])
+  // 返回结果
+  return (typeof input === 'string') ? result[0] : result
 }
 
 async function gq<T = any>(doc: string, variables?: any): Promise<T> {
@@ -73,7 +114,8 @@ async function gq<T = any>(doc: string, variables?: any): Promise<T> {
         name: process.env.REPO_NAME,
         headers: {
           authorization: `Bearer ${process.env.REPO_ACCESS_TOKEN}`
-        }
+        },
+        request: (input: RequestInfo, init: RequestInit = {}) => fetch(input, { cache: 'no-store', ...init })
       },
       variables
     )

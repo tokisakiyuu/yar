@@ -1,5 +1,6 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { atom, useAtom, useSetAtom } from 'jotai'
+import { RESET, atomWithReset } from 'jotai/utils'
 import cx from 'clsx'
 import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid'
@@ -31,6 +32,16 @@ export default function Collector({ show, onClose, onComplete, onDelete }: Props
       remark
     })
   }
+  useEffect(() => {
+    if (!show) {
+      setAmount(RESET)
+      setExpend(RESET)
+      setStep(RESET)
+      setKind(RESET)
+      setRemark(RESET)
+      setDate(RESET)
+    }
+  }, [show])
   return (
     <>
       <div onClick={onClose} className={`fixed top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
@@ -94,12 +105,12 @@ export default function Collector({ show, onClose, onComplete, onDelete }: Props
   )
 }
 
-const amountAtom = atom('0')
-const isExpendAtom = atom(true)
-const stepAtom = atom(0)
-const kindAtom = atom('')
-const remarkAtom = atom('')
-const dateAtom = atom(new Date())
+const amountAtom = atomWithReset('0')
+const isExpendAtom = atomWithReset(true)
+const stepAtom = atomWithReset(0)
+const kindAtom = atomWithReset('')
+const remarkAtom = atomWithReset('')
+const dateAtom = atomWithReset(new Date())
 const showDatePickerAtom = atom(false)
 
 function NumberKeyboard() {
