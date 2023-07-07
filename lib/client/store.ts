@@ -33,5 +33,7 @@ export async function updateTable(month: string, records: ExpendRecord[]) {
   const records = await storage.getItem('cached_records')
   if (Array.isArray(records)) {
     store.set(recordsAtom, records)
+  } else {
+    store.set(recordsAtom, await fetchTable(dayjs().format('YYYY-MM')))
   }
 })()
