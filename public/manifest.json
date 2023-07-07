@@ -1,6 +1,6 @@
 {
-  "name": "PWA App",
-  "short_name": "App",
+  "name": "Yar暴富记账",
+  "short_name": "暴富记账",
   "icons": [
     {
       "src": "/icons/app-icon.png",
