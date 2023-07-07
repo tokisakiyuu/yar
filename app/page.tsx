@@ -70,7 +70,10 @@ export default function Home() {
       <Collector
         show={displayCollector}
         edit={editingRecord}
-        onClose={() => setDisplaycollector(false)}
+        onClose={() => {
+          setDisplaycollector(false)
+          setEditingRecord(null)
+        }}
         onComplete={data => {
           setDisplaycollector(false)
           if (!editingRecord) {

@@ -45,7 +45,6 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
       setDate(RESET)
     }
     if (show && edit) {
-      console.log('编辑', edit)
       setAmount(String(Math.abs(edit.amount)))
       setExpend(edit.amount <= 0)
       setKind(edit.kind)
