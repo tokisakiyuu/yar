@@ -247,3 +247,4 @@ const exampleData: ExpendRecord[] = [
 
 export const monthAtom = atom<Dayjs>(dayjs())
 export const recordsAtom = atom<ExpendRecord[]>([])
+export const loadingAtom = atom(false)

@@ -9,12 +9,13 @@ import { ExpendRecord } from '@/lib/source'
 
 interface Props {
   show: boolean
+  edit: ExpendRecord | null
   onClose: () => void
   onComplete: (data: ExpendRecord) => void
   onDelete: () => void
 }
 
-export default function Collector({ show, onClose, onComplete, onDelete }: Props) {
+export default function Collector({ show, edit, onClose, onComplete, onDelete }: Props) {
   const [amount, setAmount] = useAtom(amountAtom)
   const [isExpend, setExpend] = useAtom(isExpendAtom)
   const [step, setStep] = useAtom(stepAtom)
@@ -24,10 +25,10 @@ export default function Collector({ show, onClose, onComplete, onDelete }: Props
   const [showDatePicker, setShowDatePicker] = useAtom(showDatePickerAtom)
   const handleComplete = () => {
     onComplete({
-      rid: uuidv4(),
+      rid: edit ? edit.rid : uuidv4(),
       amount: Number(amount) * (isExpend ? -1 : 1),
       kind,
-      createAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      createAt: edit ? edit.createAt : dayjs().format('YYYY-MM-DD HH:mm:ss'),
       date: dayjs(date).format('YYYY-MM'),
       remark
     })
@@ -40,6 +41,13 @@ export default function Collector({ show, onClose, onComplete, onDelete }: Props
       setKind(RESET)
       setRemark(RESET)
       setDate(RESET)
+    }
+    if (show && edit) {
+      setAmount(String(Math.abs(edit.amount)))
+      setExpend(edit.amount <= 0)
+      setKind(edit.kind)
+      setRemark(edit.remark)
+      setDate(dayjs(edit.date).toDate())
     }
   }, [show])
   return (
