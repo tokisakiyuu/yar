@@ -1,13 +1,14 @@
 'use client'
 
-import { fetchFileContent } from '@/lib/github'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(duration)
 
 export default async function Test() {
-  const content = await fetchFileContent('myfile.txt')
+  const d = dayjs().add(1, 'month').set('date', 1).subtract(1, 'day').get('date')
   return (
     <div>
-      <h3>file1</h3>
-      <p>{content}</p>
+      <p>{d}</p>
     </div>
   )
 }

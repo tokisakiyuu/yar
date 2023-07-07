@@ -1,11 +1,13 @@
-import { Fragment, useEffect } from 'react'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { Fragment, useEffect, useRef, useState } from 'react'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET, atomWithReset } from 'jotai/utils'
 import cx from 'clsx'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
+import { useScrolling } from 'react-use'
 import { v4 as uuidv4 } from 'uuid'
 import DatePicker from './DatePicker'
 import { ExpendRecord } from '@/lib/source'
+import { monthAtom } from './state'
 
 interface Props {
   show: boolean
@@ -29,7 +31,7 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
       amount: Number(amount) * (isExpend ? -1 : 1),
       kind,
       createAt: edit ? edit.createAt : dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      date: dayjs(date).format('YYYY-MM'),
+      date: dayjs(date).format('YYYY-MM-DD'),
       remark
     })
   }
@@ -43,6 +45,7 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
       setDate(RESET)
     }
     if (show && edit) {
+      console.log('编辑', edit)
       setAmount(String(Math.abs(edit.amount)))
       setExpend(edit.amount <= 0)
       setKind(edit.kind)
@@ -71,14 +74,7 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
           </div>
           <div className="items-stretch w-[1px] bg-[#EDEDED]" />
           <div className="flex flex-col ml-auto font-bold">
-            <div className="aspect-[3/2] w-[calc((100vw-3px)/4)] flex justify-center items-center overflow-hidden active:bg-[#f3f3f3]" onClick={() => setShowDatePicker(true)}>
-              {dayjs(date).isSame(dayjs(), 'day')
-                ? '今天'
-                : dayjs(date).isSame(dayjs().subtract(1, 'day'), 'day')
-                  ? '昨天'
-                  : dayjs(date).format('YYYY/M/D')
-              }
-            </div>
+            <DateSelector value={dayjs(date).get('date')} onChange={dateValue => setDate(dayjs().set('date', dateValue).toDate())} />
             <div className="h-[1px] w-full bg-[#EDEDED]" />
             {step ===0
               ? <div className="aspect-[3/2] w-[calc((100vw-3px)/4)] flex justify-center items-center overflow-hidden active:bg-[#f3f3f3]" onClick={() => setExpend(!isExpend)}>{isExpend ? '支出' : '收入'}</div>
@@ -221,4 +217,57 @@ function groupByNumber(arr: string[], n: number) {
     result.push(arr.slice(i, i + n))
   }
   return result
+}
+
+function getMonthLastDay(date: Dayjs) {
+  return dayjs(date).add(1, 'month').set('date', 1).subtract(1, 'day').get('date')
+}
+
+function DateSelector({
+  onChange,
+  value
+}: {
+  onChange: (value: number) => void
+  value: number
+}) {
+  const currentSelectedMonth = useAtomValue(monthAtom)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const isScrolling = useScrolling(containerRef)
+  const [todayDate] = useState(() => (new Date()).getDate())
+  const prevValue = useRef<number | null>(null)
+  // 滚动过程中检测滚动到了几号
+  useEffect(() => {
+    if (!isScrolling && containerRef.current) {
+      const container = containerRef.current
+      const stepHeight = container.firstElementChild!.getBoundingClientRect().height
+      const index = Math.round(container.scrollTop / stepHeight)
+      const value = index + 1
+      if (prevValue.current !== value) {
+        onChange(value)
+        prevValue.current = value
+      }
+    }
+  }, [isScrolling])
+  // 默认滚动到今天
+  useEffect(() => {
+    if (containerRef.current && value > 0) {
+      const container = containerRef.current
+      const stepHeight = container.firstElementChild!.getBoundingClientRect().height
+      container.scrollTop = stepHeight * (value - 1)
+    }
+  }, [containerRef.current, value])
+  return (
+    <div ref={containerRef} className='aspect-[3/2] w-[calc((100vw-3px)/4)] overflow-y-scroll no-scrollbar snap-y snap-mandatory'>
+      {Array(getMonthLastDay(currentSelectedMonth)).fill(0).map((_, i) => (
+        <div key={i} className='w-full h-full snap-start flex items-center justify-center'>
+          <div className='flex flex-col justify-center'>
+            <span className='text-center'>{i + 1}日</span>
+            {(dayjs().get('date') === i + 1) && (
+              <span className='text-[.8rem] text-center'>今天</span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
