@@ -119,6 +119,7 @@ const showDatePickerAtom = atom(false)
 function NumberKeyboard() {
   const [amount, setAmount] = useAtom(amountAtom)
   const handleKeypress = (key: string) => {
+    window.navigator.vibrate(100)
     if (key === 'backward') {
       if (amount.length === 1) return setAmount('0')
       if (amount !== '0') return setAmount(amount.slice(0, -1))
