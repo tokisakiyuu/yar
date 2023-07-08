@@ -7,7 +7,7 @@ import { useScrolling } from 'react-use'
 import { v4 as uuidv4 } from 'uuid'
 import DatePicker from './DatePicker'
 import { ExpendRecord } from '@/lib/source'
-import { monthAtom } from './state'
+import { incrementKindTimesAtom, incrementRemarkTimesAtom, kindPresetAtom, monthAtom, remarkPresetAtom } from './state'
 
 interface Props {
   show: boolean
@@ -25,16 +25,9 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
   const [remark, setRemark] = useAtom(remarkAtom)
   const [date, setDate] = useAtom(dateAtom)
   const [showDatePicker, setShowDatePicker] = useAtom(showDatePickerAtom)
-  const handleComplete = () => {
-    onComplete({
-      rid: edit ? edit.rid : uuidv4(),
-      amount: Number(amount) * (isExpend ? -1 : 1),
-      kind,
-      createAt: edit ? edit.createAt : dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      date: dayjs(date).format('YYYY-MM-DD'),
-      remark
-    })
-  }
+  const incrementKindTimes = useSetAtom(incrementKindTimesAtom)
+  const incrementRemarkTimes = useSetAtom(incrementRemarkTimesAtom)
+  // 重置和初始化此控件
   useEffect(() => {
     if (!show) {
       setAmount(RESET)
@@ -52,13 +45,25 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
       setDate(dayjs(edit.date).toDate())
     }
   }, [show])
+  const handleComplete = () => {
+    kind && incrementKindTimes(kind)
+    remark.split(remarkSplitRegExp).filter(t => !!t).forEach(keyword => incrementRemarkTimes(keyword))
+    onComplete({
+      rid: edit ? edit.rid : uuidv4(),
+      amount: Number(amount) * (isExpend ? -1 : 1),
+      kind,
+      createAt: edit ? edit.createAt : dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      date: dayjs(date).format('YYYY-MM-DD'),
+      remark
+    })
+  }
   return (
     <>
       <div onClick={onClose} className={`fixed top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
       <div className={`fixed bottom-0 w-full bg-white rounded-t-2xl shadow-[0_20px_20px_20px_rgba(0,0,0,.2)] transition-transform ${cx({ 'translate-y-full': !show  })}`}>
         <div className="p-3 py-5 border-b-[#EDEDED] border-b">
           <div className="flex">
-            <input className="flex-1 mr-6 outline-none text-sm" type="text" placeholder="未分类" value={kind} onChange={(e) => setKind(e.target.value)} />
+            <input className="flex-1 mr-6 outline-none text-sm" type="text" placeholder="未分类" maxLength={4} value={kind} onChange={(e) => setKind(e.target.value)} />
             <span className="ml-auto text-2xl">{isExpend ? '-' : '+'}{amount}</span>
           </div>
           <div className="flex justify-end mt-2.5">
@@ -164,9 +169,16 @@ const tempKinds = ['餐饮', '交通', '日常', '健康', '医疗', '体育', '
 
 function KindSelector() {
   const setKind = useSetAtom(kindAtom)
+  const kinds = useAtomValue(kindPresetAtom)
   return (
     <div className="w-full h-full overflow-y-scroll no-scrollbar">
-      {groupByNumber(tempKinds, 3).map((row, ri) => (
+      {!kinds.length && (
+        <div className='h-full flex justify-center items-center flex-col text-[#EDEDED]'>
+          <span>当前无分类预设</span>
+          <span>请手动输入</span>
+        </div>
+      )}
+      {groupByNumber(kinds.map(item => item.keyword), 3).map((row, ri) => (
         <Fragment key={ri}>
           <div className="flex">
             {row.map((kind, ci) => (
@@ -188,11 +200,13 @@ function KindSelector() {
 }
 
 const tempRemarks = ['小龙坎火锅', '小黄鸭', '晚饭', '农夫山泉', '午饭', '烤肉', '烧烤', '早餐', '纸巾和汽水']
+const remarkSplitRegExp = /、|，|\/|\s+/
 
 function RemarkSelector() {
   const [remark, setRemark] = useAtom(remarkAtom)
+  const remarks = useAtomValue(remarkPresetAtom)
   const handleRemark = (addRemark: string) => {
-    const remarkList = remark.split('、').filter(r => r)
+    const remarkList = remark.split(remarkSplitRegExp).filter(r => r)
     if (remarkList.includes(addRemark)) {
       setRemark(remarkList.filter(r => r !== addRemark).join('、'))
     } else {
@@ -201,11 +215,19 @@ function RemarkSelector() {
     }
   }
   return (
-    <div className="flex p-3 gap-x-5 gap-y-3 flex-wrap">
-      {tempRemarks.map((remark, i) => (
-        <span key={i} className="underline underline-offset-2 decoration-[#6C97FC]" onClick={() => handleRemark(remark)}>{remark}</span>
-      ))}
-    </div>
+    <>
+      {!remarks.length && (
+        <div className='h-full w-full flex justify-center items-center flex-col text-[#EDEDED]'>
+          <span>当前无备注预设</span>
+          <span>请手动输入</span>
+        </div>
+      )}
+      <div className="flex p-3 gap-x-5 gap-y-3 flex-wrap">
+        {remarks.map((remark, i) => (
+          <span key={i} className="underline underline-offset-2 decoration-[#6C97FC]" onClick={() => handleRemark(remark.keyword)}>{remark.keyword}</span>
+        ))}
+      </div>
+    </>
   )
 }
 
