@@ -2,20 +2,26 @@ import dayjs from 'dayjs'
 import { getDefaultStore } from 'jotai'
 import storage from './storage'
 import { ExpendRecord } from '../source'
-import { recordsAtom } from '@/app/components/state'
-import { getQueryParameter } from '../utils'
+import { appTokenAtom } from '@/app/components/state'
 
 const store = getDefaultStore()
-const apiHeaders = new Headers({ 'Authorization': `Bearer ${getQueryParameter('token')}` })
 
 export async function fetchTable(month: string): Promise<ExpendRecord[]> {
-  const res = await fetch(`/api/table/${month}`, { headers: apiHeaders })
+  const appToken = store.get(appTokenAtom)
+  const res = await fetch(`/api/table/${month}`, {
+    headers: {
+      'Authorization': `Bearer ${appToken}`
+    }
+  })
   if (res.status === 200) {
     const records = await res.json()
     if (dayjs().format('YYYY-MM') === month) {
       await storage.setItem('cached_records', records)
     }
     return records
+  }
+  if (res.status === 401) {
+    store.set(appTokenAtom, '')
   }
   return []
 }
@@ -24,18 +30,15 @@ export async function updateTable(month: string, records: ExpendRecord[]) {
   if (dayjs().format('YYYY-MM') === month) {
     await storage.setItem('cached_records', records)
   }
-  await fetch(`/api/table/${month}`, {
+  const appToken = store.get(appTokenAtom)
+  const res = await fetch(`/api/table/${month}`, {
     method: 'POST',
     body: JSON.stringify(records),
-    headers: apiHeaders
+    headers: {
+      'Authorization': `Bearer ${appToken}`
+    }
   })
-}
-
-(async () => {
-  if (typeof window === 'undefined') return
-  const records = await storage.getItem('cached_records')
-  if (Array.isArray(records)) {
-    store.set(recordsAtom, records)
+  if (res.status === 401) {
+    store.set(appTokenAtom, '')
   }
-  store.set(recordsAtom, await fetchTable(dayjs().format('YYYY-MM')))
-})()
+}

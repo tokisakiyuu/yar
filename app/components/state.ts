@@ -289,3 +289,5 @@ export const kindPresetAtom = atomWithStorage<KeywordUsageRecord[]>('kinds_prese
 export const remarkPresetAtom = atomWithStorage<KeywordUsageRecord[]>('remark_preset', [])
 export const incrementKindTimesAtom = createIncrementKeywordTimesAtom(kindPresetAtom)
 export const incrementRemarkTimesAtom = createIncrementKeywordTimesAtom(remarkPresetAtom)
+
+export const appTokenAtom = atomWithStorage('app_token', 'xxx')

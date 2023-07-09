@@ -27,9 +27,3 @@ export function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
   result.sort((a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? -1 : 1)
   return result
 }
-
-export function getQueryParameter(name: string) {
-  if (typeof window === 'undefined') return ''
-  const urlParams = new URLSearchParams(window.location.search)
-  return urlParams.get(name) || ''
-}
