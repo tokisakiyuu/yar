@@ -3,11 +3,13 @@ import { getDefaultStore } from 'jotai'
 import storage from './storage'
 import { ExpendRecord } from '../source'
 import { recordsAtom } from '@/app/components/state'
+import { getQueryParameter } from '../utils'
 
 const store = getDefaultStore()
+const apiHeaders = new Headers({ 'Authorization': `Bearer ${getQueryParameter('token')}` })
 
 export async function fetchTable(month: string): Promise<ExpendRecord[]> {
-  const res = await fetch(`/api/table/${month}`)
+  const res = await fetch(`/api/table/${month}`, { headers: apiHeaders })
   if (res.status === 200) {
     const records = await res.json()
     if (dayjs().format('YYYY-MM') === month) {
@@ -24,7 +26,8 @@ export async function updateTable(month: string, records: ExpendRecord[]) {
   }
   await fetch(`/api/table/${month}`, {
     method: 'POST',
-    body: JSON.stringify(records)
+    body: JSON.stringify(records),
+    headers: apiHeaders
   })
 }
 
