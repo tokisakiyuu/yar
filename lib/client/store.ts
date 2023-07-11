@@ -8,6 +8,7 @@ const store = getDefaultStore()
 
 export async function fetchTable(month: string): Promise<ExpendRecord[]> {
   const appToken = store.get(appTokenAtom)
+  if (!appToken) return []
   const res = await fetch(`/api/table/${month}`, {
     headers: {
       'Authorization': `Bearer ${appToken}`
@@ -31,6 +32,7 @@ export async function updateTable(month: string, records: ExpendRecord[]) {
     await storage.setItem('cached_records', records)
   }
   const appToken = store.get(appTokenAtom)
+  if (!appToken) return
   const res = await fetch(`/api/table/${month}`, {
     method: 'POST',
     body: JSON.stringify(records),
