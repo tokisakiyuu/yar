@@ -22,18 +22,8 @@ export default function AppMain() {
     setDisplaycollector(true)
   }
   return (
-    <main>
-      <div className='h-14 bg-[#6C97FC] sticky top-0 flex items-center text-white px-3'>
-        <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
-          <MdArrowLeft />
-        </div>
-        <div className='mx-auto'>
-          {month.format('YYYY年M月')}
-        </div>
-        <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
-          <MdArrowRight />
-        </div>
-      </div>
+    <main className='bg-white'>
+      <Header />
       {loading ? (
         <div className="flex items-center justify-center pt-12 pb-32 text-[#c9c9c9]">
           <span>加载中...</span>
@@ -129,4 +119,24 @@ function useAutoMonthRecords() {
     }
     setRecords(await fetchTable(dayjs().format('YYYY-MM')))
   })
+}
+
+function Header() {
+  const [month, setMonth] = useAtom(monthAtom)
+  return (
+    <div className='sticky top-0 bg-[#6C97FC]'>
+      <div className='h-[var(--safe-area-inset-top)] w-full' />
+      <div className='h-14 flex items-center text-white px-3'>
+        <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
+          <MdArrowLeft />
+        </div>
+        <div className='mx-auto'>
+          {month.format('YYYY年M月')}
+        </div>
+        <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
+          <MdArrowRight />
+        </div>
+      </div>
+    </div>
+  )
 }

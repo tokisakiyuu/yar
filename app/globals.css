@@ -20,9 +20,10 @@
 }
 
 :root {
-  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0.5vh)
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0.5vh);
+  --safe-area-inset-top: env(safe-area-inset-top, 20px);
 }
 
 html {
-  background-color: white;
+  background-color: #6C97FC;
 }
