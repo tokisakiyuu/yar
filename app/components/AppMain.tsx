@@ -124,19 +124,22 @@ function useAutoMonthRecords() {
 function Header() {
   const [month, setMonth] = useAtom(monthAtom)
   return (
-    <div className='sticky top-0 bg-[#6C97FC]'>
-      <div className='h-[var(--safe-area-inset-top)] w-full' />
-      <div className='h-14 flex items-center text-white px-3'>
-        <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
-          <MdArrowLeft />
-        </div>
-        <div className='mx-auto'>
-          {month.format('YYYY年M月')}
-        </div>
-        <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
-          <MdArrowRight />
+    <>
+      <div className='fixed top-0 w-full bg-[#6C97FC]'>
+        <div className='h-[var(--safe-area-inset-top)] w-full' />
+        <div className='h-14 flex items-center text-white px-3'>
+          <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
+            <MdArrowLeft />
+          </div>
+          <div className='mx-auto'>
+            {month.format('YYYY年M月')}
+          </div>
+          <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
+            <MdArrowRight />
+          </div>
         </div>
       </div>
-    </div>
+      <div style={{ height: 'calc(var(--safe-area-inset-top) + 3.5rem)' }} />
+    </>
   )
 }
