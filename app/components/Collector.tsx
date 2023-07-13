@@ -57,7 +57,7 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
   }
   return (
     <>
-      <div onClick={onClose} className={`fixed top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
+      <div onClick={onClose} className={`fixed z-30 top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
       <div className={`fixed bottom-0 w-full bg-white rounded-t-2xl shadow-[0_20px_20px_20px_rgba(0,0,0,.2)] transition-transform ${cx({ 'translate-y-full': !show  })}`}>
         <div className="p-3 py-5 border-b-[#EDEDED] border-b">
           <div className="flex">

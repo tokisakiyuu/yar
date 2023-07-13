@@ -26,7 +26,7 @@ export default function AppMain() {
         </div>
       ) : <List />}
       <div
-        className="flex z-30 items-center justify-center w-16 h-16 bg-[#6C97FC] rounded-full text-white text-3xl leading-none fixed bottom-7 right-7 cursor-pointer select-none"
+        className="flex z-20 items-center justify-center w-16 h-16 bg-[#6C97FC] rounded-full text-white text-3xl leading-none fixed bottom-7 right-7 cursor-pointer select-none"
         style={{ bottom: 'calc(1.75rem + var(--safe-area-inset-bottom))' }}
         onClick={() => setDisplaycollector(true)}
       >+</div>
