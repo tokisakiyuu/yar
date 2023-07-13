@@ -57,8 +57,8 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
   }
   return (
     <>
-      <div onClick={onClose} className={`fixed z-30 top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
-      <div className={`fixed bottom-0 w-full bg-white rounded-t-2xl shadow-[0_20px_20px_20px_rgba(0,0,0,.2)] transition-transform ${cx({ 'translate-y-full': !show  })}`}>
+      <div onClick={onClose} className={`fixed z-20 top-0 left-0 w-full h-full ${cx(!show && 'hidden')}`} />
+      <div className={`fixed z-30 bottom-0 w-full bg-white rounded-t-2xl shadow-[0_20px_20px_20px_rgba(0,0,0,.2)] transition-transform ${cx({ 'translate-y-full': !show  })}`}>
         <div className="p-3 py-5 border-b-[#EDEDED] border-b">
           <div className="flex">
             <input className="flex-1 mr-6 outline-none text-sm" type="text" placeholder="未分类" maxLength={4} value={kind} onChange={(e) => setKind(e.target.value)} />
