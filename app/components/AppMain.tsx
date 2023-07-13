@@ -26,7 +26,7 @@ export default function AppMain() {
         </div>
       ) : <List />}
       <div
-        className="flex items-center justify-center w-16 h-16 bg-[#6C97FC] rounded-full text-white text-3xl leading-none fixed bottom-7 right-7 cursor-pointer select-none"
+        className="flex z-30 items-center justify-center w-16 h-16 bg-[#6C97FC] rounded-full text-white text-3xl leading-none fixed bottom-7 right-7 cursor-pointer select-none"
         style={{ bottom: 'calc(1.75rem + var(--safe-area-inset-bottom))' }}
         onClick={() => setDisplaycollector(true)}
       >+</div>
@@ -97,15 +97,17 @@ function useAutoMonthRecords() {
 
 function Header() {
   const [month, setMonth] = useAtom(monthAtom)
+  const [displayAnalysis, setDisplayAnalysis] = useState(false)
   return (
     <>
-      <div className='fixed top-0 w-full bg-[#6C97FC]'>
+      <Analysis show={displayAnalysis} />
+      <div className='fixed z-50 top-0 w-full bg-[#6C97FC]'>
         <div className='h-[var(--safe-area-inset-top)] w-full' />
         <div className='h-14 flex items-center text-white px-3'>
           <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
             <MdArrowLeft />
           </div>
-          <div className='mx-auto'>
+          <div className='mx-auto' onClick={() => setDisplayAnalysis(!displayAnalysis)}>
             {month.format('YYYY年M月')}
           </div>
           <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
@@ -148,5 +150,30 @@ function List() {
         <span>{records.length ? '没有更多了' : '无记录'}</span>
       </div>
     </>
+  )
+}
+
+function Analysis({
+  show
+}: {
+  show: boolean
+}) {
+  const loading = useAtomValue(loadingAtom)
+  const records = useAtomValue(recordsAtom)
+  const totalExpend = records.reduce((total, item) => item.amount < 0 ? total + Math.abs(item.amount) : total, 0)
+  const totalIncome = records.reduce((total, item) => item.amount > 0 ? total + item.amount : total, 0)
+  return (
+    <div
+      className='fixed z-40 top-0 bottom-0 w-full bg-[#6C97FC] transition-[transform]'
+      style={{ transform: show ? 'translateY(0)' : 'translateY(calc(-100%)' }}
+    >
+      <div style={{ height: 'calc(var(--safe-area-inset-top) + 3.5rem)' }} />
+      <div className='text-white text-center pt-5'>
+        <h3 className='text-2xl'>支出</h3>
+        <p className='mt-2'>{loading ? 'loading...' : totalExpend}</p>
+        <h3 className='text-2xl mt-4'>收入</h3>
+        <p className='mt-2'>{loading ? 'loading...' : totalIncome}</p>
+      </div>
+    </div>
   )
 }

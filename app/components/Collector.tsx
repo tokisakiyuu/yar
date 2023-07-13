@@ -5,7 +5,6 @@ import cx from 'clsx'
 import dayjs, { Dayjs } from 'dayjs'
 import { useScrolling } from 'react-use'
 import { v4 as uuidv4 } from 'uuid'
-import DatePicker from './DatePicker'
 import { ExpendRecord } from '@/lib/source'
 import { incrementKindTimesAtom, incrementRemarkTimesAtom, kindPresetAtom, monthAtom, remarkPresetAtom } from './state'
 
