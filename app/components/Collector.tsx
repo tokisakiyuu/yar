@@ -24,7 +24,6 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
   const [kind, setKind] = useAtom(kindAtom)
   const [remark, setRemark] = useAtom(remarkAtom)
   const [date, setDate] = useAtom(dateAtom)
-  const [showDatePicker, setShowDatePicker] = useAtom(showDatePickerAtom)
   const incrementKindTimes = useSetAtom(incrementKindTimesAtom)
   const incrementRemarkTimes = useSetAtom(incrementRemarkTimesAtom)
   // 重置和初始化此控件
@@ -104,11 +103,6 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
         </div>
         <div className='h-[var(--safe-area-inset-bottom)] w-full bg-[#FFF]' />
       </div>
-      <DatePicker
-        show={showDatePicker}
-        onClose={() => setShowDatePicker(false)}
-        onChange={date => setDate(date)}
-      />
     </>
   )
 }
@@ -119,7 +113,6 @@ const stepAtom = atomWithReset(0)
 const kindAtom = atomWithReset('')
 const remarkAtom = atomWithReset('')
 const dateAtom = atomWithReset(new Date())
-const showDatePickerAtom = atom(false)
 
 function NumberKeyboard() {
   const [amount, setAmount] = useAtom(amountAtom)

@@ -27,3 +27,7 @@
 html {
   background-color: #FFF;
 }
+
+body {
+  min-height: 100vh;
+}
