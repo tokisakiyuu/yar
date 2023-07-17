@@ -5,7 +5,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { MdArrowLeft, MdArrowRight } from 'react-icons/md'
 import Collector from './Collector'
 import { createOperationAtom, displayCollectorAtom, editingRecordAtom, monthAtom, recordsAtom } from './state'
-import { sortRecordsByDate } from '@/lib/utils'
+import { sortRecordsByDate, toFixedTow } from '@/lib/utils'
 import { ExpendRecord } from '@/lib/types'
 import { syncCurrentMonth } from '@/lib/client/store'
 
@@ -106,7 +106,7 @@ function List() {
           <div className='flex items-center text-[#9f9f9f] text-sm py-1 px-3'>
             <span>{dayjs(group.date).format('YYYY年MM月DD日')}</span>
             <span className="ml-2">周{['日', '一', '二', '三', '四', '五', '六'][dayjs(group.date).get('d')]}</span>
-            <span className='ml-auto'>{group.total}</span>
+            <span className='ml-auto'>{toFixedTow(group.total)}</span>
           </div>
           {group.records.map((record, ri) => (
             <div key={`${i}-${ri}`} className='flex items-center border-b border-[#F6F6F6] py-2.5 px-3 active:bg-gray-50' onClick={() => toEditRecord(record)}>
@@ -140,9 +140,9 @@ function Analysis({
       <div style={{ height: 'calc(var(--safe-area-inset-top) + 3.5rem)' }} />
       <div className='text-white text-center pt-5'>
         <h3 className='text-2xl'>支出</h3>
-        <p className='mt-2'>{totalExpend}</p>
+        <p className='mt-2'>{toFixedTow(totalExpend)}</p>
         <h3 className='text-2xl mt-4'>收入</h3>
-        <p className='mt-2'>{totalIncome}</p>
+        <p className='mt-2'>{toFixedTow(totalIncome)}</p>
       </div>
     </div>
   )

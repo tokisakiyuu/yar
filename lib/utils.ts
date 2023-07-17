@@ -25,3 +25,7 @@ export function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
   result.sort((a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? -1 : 1)
   return result
 }
+
+export function toFixedTow(num: number) {
+  return Math.floor(num * 100) / 100
+}
