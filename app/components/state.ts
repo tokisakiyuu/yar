@@ -1,11 +1,27 @@
-import { atom } from 'jotai'
+import { atom, getDefaultStore } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import { ExpendRecord } from '@/lib/source'
+import { ExpendRecord, OperationRecord } from '@/lib/types'
 import dayjs, { Dayjs } from 'dayjs'
+import recordsCalculator from '@/lib/recordsCalculator'
+import storage from '@/lib/client/storage'
+import { syncCurrentMonth } from '@/lib/client/store'
+
+const store = getDefaultStore()
 
 export const monthAtom = atom<Dayjs>(dayjs())
-export const recordsAtom = atom<ExpendRecord[]>([])
-export const loadingAtom = atom(false)
+export const cachedRecordsAtom = atom<ExpendRecord[]>([])
+export const operationRecordsAtom = atom<OperationRecord[]>([])
+export const recordsAtom = atom<ExpendRecord[]>(get => recordsCalculator(get(cachedRecordsAtom), get(operationRecordsAtom)))
+export const createOperationAtom = atom(null, async (get, set, op: OperationRecord) => {
+  const ops = [...get(operationRecordsAtom), op]
+  const month = get(monthAtom)
+  await storage.setItem(`${month.format('YYYY-MM')}_ops`, ops)
+  set(operationRecordsAtom, ops)
+})
+
+store.sub(monthAtom, async () => {
+  syncCurrentMonth()
+})
 
 interface KeywordUsageRecord {
   keyword: string

@@ -1,13 +1,11 @@
 import dayjs from 'dayjs'
-import { ExpendRecord } from './source'
+import { ExpendRecord } from './types'
 
 interface DailyRecords {
   date: string
   total: number
   records: ExpendRecord[]
 }
-
-const createAtFormat = 'YYYY-M-D H:mm'
 
 export function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
   const grouped = new Map<string, ExpendRecord[]>()
@@ -20,8 +18,8 @@ export function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
   grouped.forEach((records, date) => {
     result.push({
       date,
-      total: records.reduce((total, record) => total + record.amount, 0),
-      records: records.sort((a, b) => dayjs(a.createAt, createAtFormat).isAfter(dayjs(b.createAt, createAtFormat)) ? -1 : 1)
+      total: records.reduce((total, record) => total + Number(record.amount), 0),
+      records
     })
   })
   result.sort((a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? -1 : 1)

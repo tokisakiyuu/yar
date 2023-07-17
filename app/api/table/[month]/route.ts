@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ExpendRecord, fetchTable, updateTable } from '@/lib/source'
+import { fetchFileContent, pushFileChanges } from '@/lib/github'
+import { csvToJson, jsonToCsv } from '@/lib/csv'
+import { ExpendRecord, OperationRecord } from '@/lib/types'
+import recordsCalculator from '@/lib/recordsCalculator'
 
 /**
  * 获取指定月份的记录表
@@ -9,8 +12,10 @@ export async function GET(
   { params }: { params: { month: string } }
 ) {
   const { month } = params
-  const table = await fetchTable(month)
-  return NextResponse.json(table || [])
+  const { content } = await fetchFileContent(`${month}.csv`)
+  if (!content) return NextResponse.json([])
+  const records = await csvToJson(content)
+  return NextResponse.json(records)
 }
 
 /**
@@ -20,8 +25,24 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { month: string } }
 ) {
-  const records = await req.json() as ExpendRecord[]
   const { month } = params
-  await updateTable(month, records)
-  return new NextResponse(null, { status: 200 })
+  const ops = await req.json()
+  const { content } = await fetchFileContent(`${month}.csv`)
+  const records: ExpendRecord[] = content ? (await csvToJson(content)) : []
+  const newRecords = recordsCalculator(records, ops)
+  if (!newRecords.length) {
+    await pushFileChanges({
+      deletions: [{ path: `${month}.csv` }]
+    })
+    return NextResponse.json(null)
+  }
+  await pushFileChanges({
+    additions: [
+      {
+        path: `${month}.csv`,
+        contents: await jsonToCsv(newRecords)
+      }
+    ]
+  })
+  return NextResponse.json(null)
 }

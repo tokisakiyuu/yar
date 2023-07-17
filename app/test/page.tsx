@@ -1,14 +1,12 @@
-'use client'
-
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-dayjs.extend(duration)
+import dayjs from "dayjs"
 
 export default async function Test() {
-  const d = dayjs().add(1, 'month').set('date', 1).subtract(1, 'day').get('date')
   return (
     <div>
-      <p>{d}</p>
+      <p>{dayjs('2023-07-15T08:23:48Z').format('YYYY-M-D H:m:s')}</p>
+      <p>{dayjs('2023-07-15T08:47:25Z').format('YYYY-M-D H:m:s')}</p>
+      <p>{dayjs(0).toISOString()}</p>
+      <p>{dayjs('2023-07-15T09:27:07Z').format('YYYY-M-D H:m:s')}</p>
     </div>
   )
 }

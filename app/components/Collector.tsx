@@ -4,8 +4,8 @@ import { RESET, atomWithReset } from 'jotai/utils'
 import cx from 'clsx'
 import dayjs, { Dayjs } from 'dayjs'
 import { useScrolling } from 'react-use'
-import { v4 as uuidv4 } from 'uuid'
-import { ExpendRecord } from '@/lib/source'
+import { nanoid } from 'nanoid'
+import { ExpendRecord } from '@/lib/types'
 import { incrementKindTimesAtom, incrementRemarkTimesAtom, kindPresetAtom, monthAtom, remarkPresetAtom } from './state'
 
 interface Props {
@@ -36,8 +36,8 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
       setDate(RESET)
     }
     if (show && edit) {
-      setAmount(String(Math.abs(edit.amount)))
-      setExpend(edit.amount <= 0)
+      setAmount(String(Math.abs(Number(edit.amount))))
+      setExpend(Number(edit.amount) <= 0)
       setKind(edit.kind)
       setRemark(edit.remark)
       setDate(dayjs(edit.date).toDate())
@@ -47,11 +47,10 @@ export default function Collector({ show, edit, onClose, onComplete, onDelete }:
     kind && incrementKindTimes(kind)
     remark.split(remarkSplitRegExp).filter(t => !!t).forEach(keyword => incrementRemarkTimes(keyword))
     onComplete({
-      rid: edit ? edit.rid : uuidv4(),
-      amount: Number(amount) * (isExpend ? -1 : 1),
+      rid: edit ? edit.rid : nanoid(),
+      amount: String(Number(amount) * (isExpend ? -1 : 1)),
       kind,
-      createAt: edit ? edit.createAt : dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      date: dayjs(date).format('YYYY-MM-DD'),
+      date: dayjs(date).format('YYYY-M-D'),
       remark
     })
   }
