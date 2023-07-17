@@ -13,6 +13,13 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+
+  .loop-rotation {
+    animation-name: loopRotation;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
 }
 
 * {
@@ -30,4 +37,13 @@ html {
 
 body {
   min-height: 100vh;
+}
+
+@keyframes loopRotation {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

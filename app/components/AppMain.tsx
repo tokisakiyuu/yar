@@ -2,9 +2,9 @@ import { useState } from 'react'
 import dayjs from "dayjs"
 import { useMount } from 'react-use'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { MdArrowLeft, MdArrowRight } from 'react-icons/md'
+import { MdArrowLeft, MdArrowRight, MdWarningAmber } from 'react-icons/md'
 import Collector from './Collector'
-import { createOperationAtom, displayCollectorAtom, editingRecordAtom, monthAtom, recordsAtom } from './state'
+import { createOperationAtom, displayCollectorAtom, editingRecordAtom, loadingAtom, monthAtom, recordsAtom, warningAtom } from './state'
 import { sortRecordsByDate, toFixedTow } from '@/lib/utils'
 import { ExpendRecord } from '@/lib/types'
 import { syncCurrentMonth } from '@/lib/client/store'
@@ -78,8 +78,9 @@ function Header() {
           <div className='mr-auto text-3xl' onClick={() => setMonth(month.subtract(1, 'month'))}>
             <MdArrowLeft />
           </div>
-          <div className='mx-auto' onClick={() => setDisplayAnalysis(!displayAnalysis)}>
-            {month.format('YYYY年M月')}
+          <div className='mx-auto flex items-center' onClick={() => setDisplayAnalysis(!displayAnalysis)}>
+            <SyncStatus />
+            <div>{month.format('YYYY年M月')}</div>
           </div>
           <div className='ml-auto text-3xl' onClick={() => setMonth(month.add(1, 'month'))}>
             <MdArrowRight />
@@ -144,6 +145,17 @@ function Analysis({
         <h3 className='text-2xl mt-4'>收入</h3>
         <p className='mt-2'>{toFixedTow(totalIncome)}</p>
       </div>
+    </div>
+  )
+}
+
+function SyncStatus() {
+  const loading = useAtomValue(loadingAtom)
+  const warning = useAtomValue(warningAtom)
+  return (
+    <div className='text-white flex items-center'>
+      {loading && <svg className='loop-rotation h-5 w-5' xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><path d="M53.17206,99.99999c0,16.20261,8.22887,30.48326,20.73538,38.8907L63.2893,154.94629C45.58296,143.09284,33.92538,122.90781,33.92538,100v-.00001c.00001-36.17975,29.07853-65.56786,65.13942-66.06813l.02379-10.97322l28.08122,20.49398L99,63.82466l.02307-10.64262c-25.41134.52005-45.85101,21.28203-45.85101,46.81795ZM166.07462,100c0,36.21406-29.1337,65.62359-65.24201,66.06948l.01911,11.3006-28.1601-20.38546l28.09098-20.48059.01745,10.31722c25.4933-.42707,46.02788-21.2261,46.02788-46.82124c0-16.34423-8.37335-30.73275-21.0643-39.10981l10.61799-16.05537c17.89084,11.82287,29.693,32.11575,29.693,55.16518v-.00001Z" fill="currentColor" stroke-width="0"/></svg>}
+      {warning && <MdWarningAmber className='h-5 w-5' />}
     </div>
   )
 }

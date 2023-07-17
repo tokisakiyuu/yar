@@ -1,6 +1,6 @@
 import { getDefaultStore } from 'jotai'
 import storage from './storage'
-import { appTokenAtom, cachedRecordsAtom, monthAtom, operationRecordsAtom } from '@/app/components/state'
+import { appTokenAtom, cachedRecordsAtom, loadingAtom, monthAtom, operationRecordsAtom, warningAtom } from '@/app/components/state'
 
 const store = getDefaultStore()
 
@@ -21,8 +21,17 @@ async function setupRecords(month: string) {
 }
 
 export async function sync(month: string) {
-  await postOps(month)
-  await downloadRecords(month)
+  try {
+    store.set(loadingAtom, true)
+    store.set(warningAtom, false)
+    await postOps(month)
+    await downloadRecords(month)
+  } catch (error) {
+    store.set(warningAtom, true)
+    throw error
+  } finally {
+    store.set(loadingAtom, false)
+  }
 }
 
 async function postOps(month: string) {

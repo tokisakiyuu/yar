@@ -58,6 +58,8 @@ function createIncrementKeywordTimesAtom(targetAtom: ReturnType<typeof atomWithS
   })
 }
 
+export const loadingAtom = atom(false)
+export const warningAtom = atom(false)
 export const displayCollectorAtom = atom(false)
 export const editingRecordAtom = atom<ExpendRecord | null>(null)
 export const kindPresetAtom = atomWithStorage<KeywordUsageRecord[]>('kinds_preset', [])
