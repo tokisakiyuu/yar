@@ -19,7 +19,7 @@ export function sortRecordsByDate(data: ExpendRecord[]): DailyRecords[] {
     result.push({
       date,
       total: records.reduce((total, record) => total + Number(record.amount), 0),
-      records
+      records: records.reverse()
     })
   })
   result.sort((a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? -1 : 1)
