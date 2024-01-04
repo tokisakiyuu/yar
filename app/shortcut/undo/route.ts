@@ -26,4 +26,4 @@ export async function GET() {
   return NextResponse.json(record);
 }
 
-export const fetchCache = "force-no-store";
+export const dynamic = "force-dynamic";

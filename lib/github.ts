@@ -91,7 +91,7 @@ async function gq<T = any>(doc: string, variables?: any): Promise<T> {
           authorization: `Bearer ${process.env.REPO_ACCESS_TOKEN}`,
         },
         request: (input: RequestInfo, init: RequestInit = {}) =>
-          fetch(input, { cache: "no-store", ...init }),
+          fetch(input, { cache: "no-store", next: { revalidate: 0 }, ...init }),
       },
       variables,
     ),
