@@ -27,6 +27,7 @@ export async function pushFileChanges(
   changes: FileChanges,
   message?: string,
 ): Promise<void> {
+  let committedDate: string | null;
   try {
     committedDate = await createCommitOnMainBranch(changes, message);
   } catch (error) {
