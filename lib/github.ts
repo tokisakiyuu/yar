@@ -1,4 +1,3 @@
-import { LRUCache } from "lru-cache";
 import { graphql, GraphqlResponseError } from "@octokit/graphql";
 import dayjs from "dayjs";
 
@@ -28,7 +27,6 @@ export async function pushFileChanges(
   changes: FileChanges,
   message?: string,
 ): Promise<void> {
-  let committedDate: string | null;
   try {
     committedDate = await createCommitOnMainBranch(changes, message);
   } catch (error) {
@@ -163,7 +161,7 @@ async function createCommitOnMainBranch(
   return res.createCommitOnBranch.commit.committedDate;
 }
 
-export async function getAllFiles(): Promise<File[]> {
+export async function getAllFiles(): Promise<FileObject[]> {
   const res = await gq(
     `query AllFiles($owner: String!, $name: String!) {
   repository(name: $name, owner: $owner) {
@@ -183,13 +181,13 @@ export async function getAllFiles(): Promise<File[]> {
 }
 `,
   );
-  return res.repository.object.entries.map((file) => ({
+  return res.repository.object.entries.map((file: any) => ({
     name: file.name,
     content: file.object.text,
   }));
 }
 
-interface File {
+interface FileObject {
   name: string;
   content: string;
 }
