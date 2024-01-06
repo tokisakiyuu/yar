@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/shortcut_v2/sync",
+      "schedule": "0 12 * * *"
+    }
+  ]
+}

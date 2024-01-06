@@ -28,7 +28,6 @@ export async function pushFileChanges(
   changes: FileChanges,
   message?: string,
 ): Promise<void> {
-  const { additions, deletions } = changes;
   let committedDate: string | null;
   try {
     committedDate = await createCommitOnMainBranch(changes, message);
@@ -162,4 +161,35 @@ async function createCommitOnMainBranch(
     },
   );
   return res.createCommitOnBranch.commit.committedDate;
+}
+
+export async function getAllFiles(): Promise<File[]> {
+  const res = await gq(
+    `query AllFiles($owner: String!, $name: String!) {
+  repository(name: $name, owner: $owner) {
+    object(expression: "HEAD:") {
+      ... on Tree {
+        entries {
+          name
+          object {
+            ... on Blob {
+              text
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`,
+  );
+  return res.repository.object.entries.map((file) => ({
+    name: file.name,
+    content: file.object.text,
+  }));
+}
+
+interface File {
+  name: string;
+  content: string;
 }
