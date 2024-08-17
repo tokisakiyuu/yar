@@ -54,3 +54,5 @@ async function pushChange(path: string, content: string) {
     message: 'sync',
   })
 }
+
+export const dynamic = 'force-dynamic'

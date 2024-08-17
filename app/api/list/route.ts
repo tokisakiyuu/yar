@@ -23,3 +23,5 @@ export async function GET(req: NextRequest) {
     limit,
   })
 }
+
+export const dynamic = 'force-dynamic'
