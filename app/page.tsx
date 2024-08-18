@@ -13,7 +13,7 @@ export default function Home() {
           Authorization: `token ${token}`,
         },
       })
-      if (res.status === 200) {
+      if (res.ok) {
         return res.json()
       } else {
         throw res.statusText
