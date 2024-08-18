@@ -18,5 +18,8 @@ export function middleware(req: NextRequest) {
 function isAuthenticated(req: NextRequest) {
   const { headers } = req
   const value = headers.get('authorization')
-  return value === `token ${process.env.APP_ACCESS_TOKEN}`
+  return (
+    value === `token ${process.env.APP_ACCESS_TOKEN}` ||
+    value === `Bearer ${process.env.APP_ACCESS_TOKEN}`
+  )
 }
