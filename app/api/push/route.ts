@@ -38,19 +38,25 @@ async function pushChange(path: string, content: string) {
   const octokit = new Octokit({
     auth: process.env.REPO_ACCESS_TOKEN,
   })
-  const { data } = await octokit.repos.getCommit({
-    owner: process.env.REPO_OWNER as string,
-    repo: process.env.REPO_NAME as string,
-    ref: process.env.REPO_BRANCH as string,
-  })
-  console.log(data)
+  const sha = await octokit.repos
+    .getContent({
+      owner: process.env.REPO_OWNER as string,
+      repo: process.env.REPO_NAME as string,
+      ref: process.env.REPO_BRANCH as string,
+      path,
+    })
+    .then(res => (res.data as any).sha)
+    .catch(reason =>
+      reason.status === 404 ? undefined : Promise.reject(reason),
+    )
+
   await octokit.repos.createOrUpdateFileContents({
     owner: process.env.REPO_OWNER as string,
     repo: process.env.REPO_NAME as string,
     branch: process.env.REPO_BRANCH as string,
     path,
     content: Buffer.from(content, 'utf8').toString('base64'),
-    sha: (data as any).parents[0].sha,
+    sha,
     message: 'sync',
   })
 }
