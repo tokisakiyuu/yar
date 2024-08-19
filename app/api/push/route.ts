@@ -2,11 +2,16 @@ import { jsonToCsv } from '@/lib/csv'
 import { attachDB } from '@/lib/mongo'
 import { Octokit } from '@octokit/rest'
 import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import { NextResponse } from 'next/server'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 export async function GET() {
   const db = await attachDB()
-  const month = dayjs().startOf('month')
+  const month = dayjs().tz('Asia/Chongqing').startOf('month')
 
   const records = await db
     .collection('records')
@@ -25,7 +30,7 @@ export async function GET() {
       amount,
       kind,
       remark,
-      date: dayjs(date).format('YYYY-M-D H:m:s'),
+      date: dayjs(date).tz('Asia/Chongqing').format('YYYY-MM-DD HH:mm:ss'),
     })),
   )
 
